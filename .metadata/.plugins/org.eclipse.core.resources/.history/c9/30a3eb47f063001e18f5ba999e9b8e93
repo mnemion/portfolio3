@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="portfolioDB">
+	
+	<!-- 회원 정보를 데이터베이스에 삽입 -->
+	<insert id="insertMember" parameterType="Datadto">
+	    INSERT INTO member_shop(affiliation, department, name, position, username, password, email, phone_prefix, phone_number, status, ip)
+	    VALUES (#{affiliation}, #{department}, #{name}, #{position}, #{username}, #{password}, #{email}, #{phone_prefix}, #{phone_number}, #{status}, #{ip})
+	</insert>
+
+		
+	<!-- 아이디 중복 체크 -->
+	<select id="checkUsername" parameterType="Datadto" resultType="int">
+			SELECT COUNT(*) FROM member_shop WHERE username = #{username}
+	</select>
+		
+	<!-- 로그인 시도 횟수를 가져옴 -->
+	<select id="getLoginAttempts" parameterType="Datadto" resultType="int">
+		    SELECT login_attempts FROM member_shop WHERE username = #{username}
+	</select>
+		
+	<!-- 로그인 시도 횟수를 초기화 -->
+	<update id="resetLoginAttempts" parameterType="Datadto">
+		    UPDATE member_shop SET login_attempts = '0' WHERE username = #{username}
+	</update>
+		
+	<!-- 로그인 시도 횟수를 증가시킴 -->
+	<update id="increaseLoginAttempts" parameterType="Datadto">
+		    UPDATE member_shop SET login_attempts = login_attempts + 1 WHERE username = #{username}
+	</update>
+		
+	<!-- 아이디와 비밀번호를 확인 -->
+	<select id="checkLogin" parameterType="Datadto" resultType="int">
+		    SELECT COUNT(*) FROM member_shop WHERE username = #{username} AND password = #{password}
+	</select>
+		
+	<!-- IP를 확인 -->
+	<select id="checkIP" parameterType="Datadto" resultType="int">
+			SELECT COUNT(*) FROM member_shop WHERE ip = #{ip}
+	</select>
+	
+	<!-- 위 코드들은 회원가입과 로그인 파트 -->
+	
+	<!-- 현황을 업데이트 -->
+	<select id="getCurrentStatus" parameterType="Datadto" resultType="String">
+	    SELECT status FROM member_shop WHERE username = #{username}
+	</select>
+	
+	<!-- 관리자 목록을 가져옴 -->
+	<select id="getAdmins" resultType="Datadto">
+	    SELECT * FROM member_shop
+	</select>
+	
+	<!-- 소속에 따른 관리자 목록을 가져옴 -->
+	<select id="getAdminsByAffiliation" parameterType="string" resultType="Datadto">
+	    SELECT * FROM member_shop WHERE affiliation = #{affiliation}
+	</select>
+	
+	<!-- 검색에 따른 관리자 목록을 가져옴 -->
+	<select id="searchAdmins" parameterType="map" resultType="Datadto">
+	    SELECT * FROM member_shop WHERE
+	    <choose>
+	        <when test="searchPart == '이름'">
+	            name LIKE #{searchText}
+	        </when>
+	        <when test="searchPart == '아이디'">
+	            username LIKE #{searchText}
+	        </when>
+	        <when test="searchPart == '연락처'">
+	            CONCAT(phone_prefix, phone_number) LIKE #{searchText}
+	        </when>
+	        <otherwise>
+	            name LIKE #{searchText} OR username LIKE #{searchText} OR CONCAT(phone_prefix, phone_number) LIKE #{searchText}
+	        </otherwise>
+	    </choose>
+	</select>
+	
+	<!-- 전체 관리자 수를 가져옴 -->
+	<select id="getTotalAdmins" resultType="int">
+	    SELECT COUNT(*) FROM member_shop
+	</select>
+	
+	<!-- 상태를 업데이트 -->
+	<update id="updateStatus" parameterType="Datadto">
+	    UPDATE member_shop SET status = #{status} WHERE id = #{id}
+	</update>
+	
+	
+	
+</mapper>

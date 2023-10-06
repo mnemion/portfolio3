@@ -1,0 +1,54 @@
+package portfolio;
+
+import java.util.Optional;
+
+import javax.annotation.Resource;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository("data")
+public class module {
+	
+	@Resource(name="sqlsession")
+	private SqlSessionTemplate session;
+	
+	//회원가입 처리
+	public void insert(datadto dto) {
+		session.insert("portfolioDB.insertMember", dto);
+	}
+	
+	// 아이디 중복 체크
+	public boolean checkUsername(datadto dto) {
+		int count = session.selectOne("portfolioDB.checkUsername", dto);
+		return count > 0;
+	}
+	
+	// 로그인 시도 횟수를 조회
+	public int getLoginAttempts(datadto dto) {
+		Integer result = session.selectOne("portfolioDB.getLoginAttempts", dto);
+	    return Optional.ofNullable(result).orElse(0);
+	}
+		
+	// 로그인 시도 횟수를 초기화
+	public void resetLoginAttempts(datadto dto) {
+		session.update("portfolioDB.resetLoginAttempts", dto);
+	}
+		
+	// 로그인 시도 횟수를 증가
+	public void increaseLoginAttempts(datadto dto) {
+		session.update("portfolioDB.increaseLoginAttempts", dto);
+	}
+		
+	// 아이디와 비밀번호를 확인
+	public boolean checkLogin(datadto dto) {
+		int count = session.selectOne("portfolioDB.checkLogin", dto);
+		return count > 0;
+	}
+	
+	// IP 확인
+	public boolean checkIP(datadto dto) {
+		int count = session.selectOne("portfolioDB.checkIP", dto);
+		return count > 0;
+	}
+}

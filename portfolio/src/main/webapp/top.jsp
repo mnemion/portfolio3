@@ -1,0 +1,23 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	String username = session.getAttribute("username").toString();
+	String name = session.getAttribute("name").toString();
+%>
+<div class="menusize">
+    <ul id="menus">
+        <li class="topmenu1">ADMINISTRATOR</li>
+        <li class="topmenu2">환경설정</li>
+        <li class="topmenu2">회원관리</li>
+        <li class="topmenu2">공지사항 관리</li>
+        <li class="topmenu2">1:1 문의사항</li>
+        <li class="topmenu2">예약현황</li>
+        <li class="topmenu2">권리자현황</li>
+        <% if (username != null && !username.isEmpty()) { %>
+            <li class="topmenu3"><%= name %>님 환영합니다  <a href="/logout.do">[로그아웃]</a></li>
+        <% } else { %>
+            <li class="topmenu3"><a href="./index.jsp">[로그인]</a></li>
+        <% } %>
+    </ul>
+ </div>
+<div class="menuline"></div>

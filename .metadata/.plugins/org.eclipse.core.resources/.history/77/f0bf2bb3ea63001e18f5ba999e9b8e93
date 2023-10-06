@@ -1,0 +1,105 @@
+document.querySelector("#affiliationSelect").addEventListener("change", function(){
+    var selectedAffiliation = this.value;
+    fetch("./getAdminsByAffiliation.do", {
+        method: "POST",
+        cache: "no-cache",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `affiliation=${selectedAffiliation}`
+    })
+    .then(response => response.json())
+    .then(admins => {
+        let tableBody = document.querySelector("tbody");
+        tableBody.innerHTML = "";
+
+        if (admins.length === 0) {
+            let row = document.createElement("tr");
+            let cell = document.createElement("td");
+            cell.textContent = "등록된 관리자가 없습니다.";
+            cell.setAttribute("colspan", "9");
+            cell.className = "listcenter";
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+        } else {
+            admins.forEach(admin => {
+                let row = document.createElement("tr");
+                row.className = "master_list";
+
+                let keys = ["id", "affiliation", "username", "name", "position", "email", "phone", "status", "apply"];
+                keys.forEach(key => {
+                    let cell = document.createElement("td");
+                    cell.className = "listcenter";
+                    if (key === 'phone') {
+                        cell.textContent = `${admin['phone_prefix']}${admin['phone_number']}`;
+                    } else {
+                        cell.textContent = admin[key] ? admin[key] : '';
+                    }
+                    row.appendChild(cell);
+                });
+
+                tableBody.appendChild(row);
+            });
+        }
+    })
+    .catch(error => {
+        console.log("Data Error!!");
+    });
+});
+
+//검색 처리
+function member_search() {
+    // 선택된 검색 유형과 검색어를 가져옵니다.
+    const searchPart = document.querySelector('select[name="search_part"]').value;
+    const searchText = document.querySelector('input[name="search"]').value;
+
+    // 서버에 검색 쿼리를 보냅니다.
+    fetch("./searchAdmins.do", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `searchPart=${searchPart}&searchText=${searchText}`
+    })
+    .then(response => response.json())
+    .then(admins => {
+        let tableBody = document.querySelector("tbody");
+        tableBody.innerHTML = "";
+
+        if (admins.length === 0) {
+            // 검색 결과가 없을 경우 "1번"을 출력합니다.
+            let row = document.createElement("tr");
+            let cell = document.createElement("td");
+            cell.textContent = "1번";
+            cell.setAttribute("colspan", "9");
+            cell.className = "listcenter";
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+        } else {
+            // 검색 결과가 있을 경우 테이블에 결과를 표시합니다.
+            admins.forEach(admin => {
+                let row = document.createElement("tr");
+                row.className = "master_list";
+
+                let keys = ["id", "affiliation", "username", "name", "position", "email", "phone", "status", "apply"];
+                keys.forEach(key => {
+                    let cell = document.createElement("td");
+                    cell.className = "listcenter";
+                    if (key === 'phone') {
+                        cell.textContent = `${admin['phone_prefix']}${admin['phone_number']}`;
+                    } else {
+                        cell.textContent = admin[key] ? admin[key] : '';
+                    }
+                    row.appendChild(cell);
+                });
+
+                tableBody.appendChild(row);
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Data Error:", error);
+    });
+
+    return false;
+}
